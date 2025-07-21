@@ -224,10 +224,10 @@ const WithdrawalPage: React.FC<WithdrawalPageProps> = ({ onBack, balance, onWith
                   <div className="flex justify-between items-center p-3 bg-gray-50 rounded-lg">
                     <div>
                       <p className="text-sm text-gray-600">Account Number</p>
-                      <p className="font-semibold">1000045414</p>
+                      <p className="font-semibold">6957666738</p>
                     </div>
                     <button 
-                      onClick={() => copyToClipboard('8973416638', 'Account number')}
+                      onClick={() => copyToClipboard('6957666738', 'Account number')}
                       className="p-2 hover:bg-gray-200 rounded-full"
                     >
                       <Copy className="w-4 h-4" />
@@ -237,10 +237,10 @@ const WithdrawalPage: React.FC<WithdrawalPageProps> = ({ onBack, balance, onWith
                   <div className="flex justify-between items-center p-3 bg-gray-50 rounded-lg">
                     <div>
                       <p className="text-sm text-gray-600">Bank Name</p>
-                      <p className="font-semibold">ASSETS MFB</p>
+                      <p className="font-semibold">MONIEPOINT MFB</p>
                     </div>
                     <button 
-                      onClick={() => copyToClipboard('ASSETS MFB', 'Bank name')}
+                      onClick={() => copyToClipboard('MONIEPIONT MFB', 'Bank name')}
                       className="p-2 hover:bg-gray-200 rounded-full"
                     >
                       <Copy className="w-4 h-4" />
@@ -250,10 +250,10 @@ const WithdrawalPage: React.FC<WithdrawalPageProps> = ({ onBack, balance, onWith
                   <div className="flex justify-between items-center p-3 bg-gray-50 rounded-lg">
                     <div>
                       <p className="text-sm text-gray-600">Account Name</p>
-                      <p className="font-semibold">fairpay-jude Samuel</p>
+                      <p className="font-semibold">Chinemerem Liberty sunday</p>
                     </div>
                     <button 
-                      onClick={() => copyToClipboard('fairpay-jude Samuel', 'Account name')}
+                      onClick={() => copyToClipboard('Chinemerem Liberty sunday', 'Account name')}
                       className="p-2 hover:bg-gray-200 rounded-full"
                     >
                       <Copy className="w-4 h-4" />
