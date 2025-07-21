@@ -10,11 +10,11 @@ interface SupportPageProps {
 
 const SupportPage: React.FC<SupportPageProps> = ({ onBack, onLiveChat }) => {
   const handleTelegramSupport = () => {
-    window.open('https://t.me/fairmonie_earning_support', '_blank');
+    window.open('t.me/FAIRMOINIEPAY', '_blank');
   };
 
   const handleEmailSupport = () => {
-    window.open('mailto:fairmoniepays@gmail.com', '_blank');
+    window.open('mailto:fairmoniepay@gmail.com', '_blank');
   };
 
   return (
