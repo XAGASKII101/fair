@@ -12,7 +12,7 @@ interface WhatsAppInviteModalProps {
 
 const WhatsAppInviteModal: React.FC<WhatsAppInviteModalProps> = ({ isOpen, onClose, user }) => {
   const referralCode = `FMP${user.name.toUpperCase().slice(0, 3)}${Math.random().toString(36).slice(2, 8).toUpperCase()}`;
-  const referralLink = `https://fairmoniepayregistration.vercel.app/?ref=${referralCode}`;
+  const referralLink = `https://fairmoniepay-site.vercel.app/?ref=${referralCode}`;
 
   const handleWhatsAppShare = () => {
     const shareText = `Join fairmonie Pay and get ₦250,000 welcome bonus instantly! I'm already earning with Fairmonie pay. Sign up using my link: ${referralLink}`;
