@@ -9,6 +9,7 @@ import {
   ArrowUpRight, 
   ArrowDownLeft, 
   Eye, 
+  EyeOff,
   History, 
   Users, 
   Building, 
@@ -32,7 +33,10 @@ import {
   Info,
   Download,
   Play,
-  CreditCard
+  CreditCard,
+  QrCode,
+  Send,
+  Wallet
 } from 'lucide-react';
 import AddMoneyModal from '@/components/AddMoneyModal';
 import TransactionHistory from '@/components/TransactionHistory';
@@ -52,6 +56,7 @@ import WithdrawalPage from '@/components/WithdrawalPage';
 import BuyFaircodeModal from '@/components/BuyFaircodeModal';
 import WhatsAppInviteModal from '@/components/WhatsAppInviteModal';
 import WithdrawalNotifications from '@/components/WithdrawalNotifications';
+import QRScanner from '@/components/QRScanner';
 
 interface User {
   name: string;
@@ -89,6 +94,7 @@ const Dashboard: React.FC<DashboardProps> = ({ user, onAddMoney, onLogout }) => 
   const [hasReturnedFromSubPage, setHasReturnedFromSubPage] = useState(false);
   const [showNotifications, setShowNotifications] = useState(true);
   const [notificationKey, setNotificationKey] = useState(0);
+  const [showQRScanner, setShowQRScanner] = useState(false);
 
   // Get first name from user.name
   const firstName = user.name.split(' ')[0];
@@ -233,9 +239,10 @@ const Dashboard: React.FC<DashboardProps> = ({ user, onAddMoney, onLogout }) => 
       showAbout, showProfileInfo, showAirtime, showData, showLoan, showWithdrawal]);
 
   const quickActions = [
-    { title: 'Support', icon: Users, color: 'bg-green-100 text-green-600', onClick: () => setShowSupport(true) },
-    { title: 'Groups', icon: Building, color: 'bg-green-100 text-green-600', onClick: () => setShowJoinGroup(true) },
-    { title: 'Withdraw', icon: TrendingUp, color: 'bg-green-100 text-green-600', onClick: () => setShowWithdrawal(true) }
+    { title: 'Send', icon: Send, color: 'bg-white text-gray-700', onClick: () => setShowWithdrawal(true) },
+    { title: 'Request', icon: Wallet, color: 'bg-white text-gray-700', onClick: () => setShowAddMoneyModal(true) },
+    { title: 'Scan', icon: QrCode, color: 'bg-white text-gray-700', onClick: () => setShowQRScanner(true) },
+    { title: 'More', icon: MoreHorizontal, color: 'bg-white text-gray-700', onClick: () => setShowProfileMenu(true) }
   ];
 
   const NairaIcon = () => (
@@ -449,97 +456,158 @@ const Dashboard: React.FC<DashboardProps> = ({ user, onAddMoney, onLogout }) => 
         </div>
       </div>
 
-      <div className="px-4 py-6 space-y-6">
-        {/* Balance Card */}
-        <Card className="gradient-green text-white border-0 card-shadow-lg animate-slideUp overflow-hidden relative">
-          <div className="absolute top-0 right-0 w-32 h-32 bg-white/10 rounded-full -translate-y-1/2 translate-x-1/2 blur-2xl"></div>
-          <CardContent className="p-6 relative z-10">
-            <div className="flex items-center justify-between mb-4">
+      <div className="px-4 py-4 space-y-4 max-w-lg mx-auto">
+        {/* Balance Card - Mobile First Design */}
+        <Card className="bg-gradient-to-br from-gray-900 via-gray-800 to-black text-white border-0 card-shadow-lg animate-slideUp overflow-hidden relative">
+          <div className="absolute top-0 right-0 w-40 h-40 bg-green-500/20 rounded-full blur-3xl"></div>
+          <CardContent className="p-5 relative z-10">
+            <div className="flex items-center justify-between mb-3">
               <div className="flex items-center space-x-2">
-                <ShieldCheck className="w-5 h-5" />
-                <span className="text-sm font-medium">Available Balance</span>
-                <button
-                  onClick={() => setShowBalance(!showBalance)}
-                  className="p-1 hover:bg-white/20 rounded-full transition-all"
-                  data-testid="button-toggle-balance"
-                >
-                  <Eye className="w-4 h-4" />
-                </button>
+                <span className="text-sm font-medium text-gray-300">Balance</span>
               </div>
+              <button
+                onClick={() => setShowBalance(!showBalance)}
+                className="p-1.5 hover:bg-white/10 rounded-full transition-all"
+                data-testid="button-toggle-balance"
+              >
+                {showBalance ? <Eye className="w-4 h-4" /> : <EyeOff className="w-4 h-4" />}
+              </button>
             </div>
             
-            <div className="flex flex-col items-center justify-center text-center mb-6">
-              <div className="text-4xl font-bold mb-6 tracking-tight">
-                {showBalance ? `₦${balance.toLocaleString()}.00` : '₦****'}
+            <div className="mb-5">
+              <div className="text-3xl font-bold tracking-tight mb-1">
+                {showBalance ? `₦${balance.toLocaleString()}.00` : '₦••••••'}
               </div>
-              <Button
-                onClick={handleAddMoneyClick}
-                className="bg-white text-green-600 hover:bg-gray-50 rounded-full px-8 py-3 font-semibold transition-all duration-300 transform hover:scale-105 shadow-xl hover:shadow-2xl"
-                data-testid="button-claim-bonus"
-              >
-                <Gift className="w-5 h-5 mr-2" />
-                Claim Bonus 🎁
-              </Button>
+              <div className="text-xs text-gray-400">Available balance</div>
+            </div>
+
+            {/* Quick Actions - Inline */}
+            <div className="grid grid-cols-4 gap-2">
+              {quickActions.map((action, index) => (
+                <button
+                  key={index}
+                  onClick={() => handleQuickActionClick(action)}
+                  className="flex flex-col items-center justify-center p-3 bg-white/10 hover:bg-white/20 rounded-xl transition-all hover-lift backdrop-blur-sm"
+                  data-testid={`action-${action.title.toLowerCase()}`}
+                >
+                  <action.icon className="w-5 h-5 mb-1.5" />
+                  <span className="text-xs font-medium">{action.title}</span>
+                </button>
+              ))}
             </div>
           </CardContent>
         </Card>
 
-        {/* Quick Actions */}
-        <div className="grid grid-cols-3 gap-4">
-          {quickActions.map((action, index) => (
-            <div 
-              key={index} 
-              className="text-center cursor-pointer group" 
-              onClick={() => handleQuickActionClick(action)}
-              data-testid={`action-${action.title.toLowerCase()}`}
+        {/* Recent Transactions Section */}
+        <div className="space-y-3">
+          <div className="flex items-center justify-between">
+            <h3 className="text-base font-semibold text-gray-900">Recent Transactions</h3>
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={handleTransactionHistoryClick}
+              className="text-green-600 hover:text-green-700 hover:bg-green-50 text-sm"
+              data-testid="button-view-all-transactions"
             >
-              <div className={`w-14 h-14 rounded-2xl ${action.color} flex items-center justify-center mx-auto mb-3 card-shadow hover-lift transition-all duration-300 group-hover:shadow-lg`}>
-                <action.icon className="w-6 h-6 group-hover:scale-110 transition-transform" />
-              </div>
-              <p className="text-sm font-semibold text-gray-700 group-hover:text-green-600 transition-colors">{action.title}</p>
-            </div>
-          ))}
-        </div>
-
-        {/* Services Grid */}
-        <div className="grid grid-cols-4 gap-4">
-          {services.map((service, index) => (
-            <div 
-              key={index} 
-              className="text-center cursor-pointer group" 
-              onClick={() => handleServiceClick(service)}
-              data-testid={`service-${service.title.toLowerCase()}`}
-            >
-              <div className={`w-12 h-12 rounded-xl ${service.color} flex items-center justify-center mx-auto mb-2 card-shadow hover-lift transition-all duration-300 group-hover:shadow-md`}>
-                <service.icon className="w-5 h-5 group-hover:scale-110 transition-transform" />
-              </div>
-              <p className="text-xs font-medium text-gray-700 group-hover:text-green-600 transition-colors">{service.title}</p>
-            </div>
-          ))}
-        </div>
-
-        {/* Promotional Banner Carousel */}
-        <div className="w-full">
-          <Carousel className="w-full" setApi={setApi}>
-            <CarouselContent>
-              {promoImages.map((image, index) => (
-                <CarouselItem key={index}>
-                  <div className="p-1">
-                    <Card className="border-0 card-shadow-lg overflow-hidden animate-scaleIn hover-lift">
-                      <CardContent className="p-0">
-                        <img 
-                          src={image} 
-                          alt={`FairMoney Promo ${index + 1}`}
-                          className="w-full h-36 object-cover"
-                        />
-                      </CardContent>
-                    </Card>
-                  </div>
-                </CarouselItem>
+              View All
+            </Button>
+          </div>
+          
+          {transactions.length > 0 ? (
+            <div className="space-y-2">
+              {transactions.slice(0, 3).map((transaction, index) => (
+                <Card key={transaction.id} className="border-0 card-shadow hover-lift transition-all">
+                  <CardContent className="p-4">
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center space-x-3">
+                        <div className={`w-10 h-10 rounded-full flex items-center justify-center ${
+                          transaction.type === 'credit' ? 'bg-green-100' : 'bg-red-100'
+                        }`}>
+                          {transaction.type === 'credit' ? (
+                            <ArrowDownLeft className="w-5 h-5 text-green-600" />
+                          ) : (
+                            <ArrowUpRight className="w-5 h-5 text-red-600" />
+                          )}
+                        </div>
+                        <div>
+                          <p className="text-sm font-medium text-gray-900">{transaction.description}</p>
+                          <p className="text-xs text-gray-500">
+                            {new Date(transaction.date).toLocaleDateString('en-US', { 
+                              month: 'short', 
+                              day: 'numeric',
+                              hour: '2-digit',
+                              minute: '2-digit'
+                            })}
+                          </p>
+                        </div>
+                      </div>
+                      <div className={`text-sm font-semibold ${
+                        transaction.type === 'credit' ? 'text-green-600' : 'text-red-600'
+                      }`}>
+                        {transaction.type === 'credit' ? '+' : '-'}₦{transaction.amount.toLocaleString()}
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
               ))}
-            </CarouselContent>
-          </Carousel>
+            </div>
+          ) : (
+            <Card className="border-0 card-shadow">
+              <CardContent className="p-8 text-center">
+                <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-3">
+                  <History className="w-8 h-8 text-gray-400" />
+                </div>
+                <p className="text-sm text-gray-500">No transactions yet</p>
+              </CardContent>
+            </Card>
+          )}
         </div>
+
+        {/* Services Grid - Card Based */}
+        <div className="space-y-3">
+          <h3 className="text-base font-semibold text-gray-900">Services</h3>
+          <div className="grid grid-cols-2 gap-3">
+            {services.slice(0, 6).map((service, index) => (
+              <Card 
+                key={index}
+                onClick={() => handleServiceClick(service)}
+                className={`border-0 card-shadow hover-lift cursor-pointer transition-all overflow-hidden ${
+                  index % 3 === 0 ? 'bg-gradient-to-br from-green-500 to-green-600 text-white' :
+                  index % 3 === 1 ? 'bg-gradient-to-br from-blue-500 to-blue-600 text-white' :
+                  'bg-gradient-to-br from-orange-500 to-orange-600 text-white'
+                }`}
+                data-testid={`service-${service.title.toLowerCase()}`}
+              >
+                <CardContent className="p-4 relative">
+                  <div className="absolute -right-2 -bottom-2 w-20 h-20 bg-white/10 rounded-full blur-2xl"></div>
+                  <div className="relative z-10">
+                    <service.icon className="w-8 h-8 mb-2" />
+                    <p className="text-sm font-semibold">{service.title}</p>
+                  </div>
+                </CardContent>
+              </Card>
+            ))}
+          </div>
+        </div>
+
+        {/* Claim Bonus Button */}
+        <Card className="border-0 bg-gradient-to-r from-green-500 to-green-600 text-white card-shadow-lg overflow-hidden relative cursor-pointer hover-lift" onClick={handleAddMoneyClick}>
+          <div className="absolute top-0 right-0 w-32 h-32 bg-white/10 rounded-full blur-2xl"></div>
+          <CardContent className="p-5 relative z-10">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center space-x-3">
+                <div className="w-12 h-12 bg-white/20 rounded-full flex items-center justify-center backdrop-blur-sm">
+                  <Gift className="w-6 h-6" />
+                </div>
+                <div>
+                  <p className="font-bold text-lg">Claim Your Bonus</p>
+                  <p className="text-xs text-white/80">Get rewarded today</p>
+                </div>
+              </div>
+              <ArrowUpRight className="w-5 h-5" />
+            </div>
+          </CardContent>
+        </Card>
       </div>
 
       {/* Modals */}
@@ -554,6 +622,17 @@ const Dashboard: React.FC<DashboardProps> = ({ user, onAddMoney, onLogout }) => 
         onClose={() => setShowWhatsAppInvite(false)}
         user={user}
       />
+
+      {/* QR Scanner */}
+      {showQRScanner && (
+        <QRScanner
+          onClose={() => setShowQRScanner(false)}
+          onScanSuccess={(data) => {
+            console.log('Scanned data:', data);
+            // Handle scanned data here
+          }}
+        />
+      )}
     </div>
   );
 };
