@@ -404,38 +404,43 @@ const Dashboard: React.FC<DashboardProps> = ({ user, onAddMoney, onLogout }) => 
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-gradient-to-br from-gray-50 via-green-50/20 to-gray-50">
       {/* Withdrawal Notifications - always visible and continuous */}
       <WithdrawalNotifications isVisible={true} />
 
       {/* Header */}
-      <div className="bg-white px-4 py-4 shadow-sm">
+      <div className="bg-white/80 backdrop-blur-md px-4 py-4 card-shadow sticky top-0 z-10">
         <div className="flex items-center justify-between">
           <div className="flex items-center space-x-3">
-            <Avatar className="w-10 h-10">
-              <AvatarFallback className="bg-green-100 text-green-600 font-semibold">
+            <Avatar className="w-12 h-12 ring-2 ring-green-100">
+              <AvatarFallback className="bg-gradient-to-br from-green-500 to-green-600 text-white font-bold text-lg">
                 {firstName.charAt(0)}
               </AvatarFallback>
             </Avatar>
-            <span className="text-lg font-medium text-gray-900">Hi, {firstName}</span>
+            <div>
+              <span className="text-lg font-semibold text-gray-900 block">Hi, {firstName}</span>
+              <span className="text-xs text-gray-500">Welcome back!</span>
+            </div>
           </div>
-          <div className="flex items-center space-x-3">
+          <div className="flex items-center space-x-2">
             <button 
               onClick={() => setShowLiveChat(true)}
-              className="p-2 hover:bg-gray-100 rounded-full transition-colors animate-bounce"
+              className="p-2.5 hover:bg-green-50 rounded-full transition-all hover-lift animate-bounce"
+              data-testid="button-live-chat"
             >
-              <Headphones className="w-6 h-6 text-gray-600" />
+              <Headphones className="w-5 h-5 text-green-600" />
             </button>
-            <button className="p-2 hover:bg-gray-100 rounded-full transition-colors">
-              <Maximize className="w-6 h-6 text-gray-600" />
+            <button className="p-2.5 hover:bg-gray-100 rounded-full transition-all">
+              <Maximize className="w-5 h-5 text-gray-600" />
             </button>
             <button
               onClick={handleTransactionHistoryClick}
-              className="p-2 hover:bg-gray-100 rounded-full transition-colors relative"
+              className="p-2.5 hover:bg-gray-100 rounded-full transition-all relative"
+              data-testid="button-notifications"
             >
-              <Bell className="w-6 h-6 text-gray-600" />
+              <Bell className="w-5 h-5 text-gray-600" />
               {transactions.length > 0 && (
-                <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center">
+                <span className="absolute -top-1 -right-1 bg-gradient-to-r from-red-500 to-red-600 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center font-bold shadow-lg">
                   {transactions.length > 9 ? '9+' : transactions.length}
                 </span>
               )}
@@ -446,15 +451,17 @@ const Dashboard: React.FC<DashboardProps> = ({ user, onAddMoney, onLogout }) => 
 
       <div className="px-4 py-6 space-y-6">
         {/* Balance Card */}
-        <Card className="gradient-green text-white border-0 shadow-lg animate-slideUp">
-          <CardContent className="p-6">
+        <Card className="gradient-green text-white border-0 card-shadow-lg animate-slideUp overflow-hidden relative">
+          <div className="absolute top-0 right-0 w-32 h-32 bg-white/10 rounded-full -translate-y-1/2 translate-x-1/2 blur-2xl"></div>
+          <CardContent className="p-6 relative z-10">
             <div className="flex items-center justify-between mb-4">
               <div className="flex items-center space-x-2">
                 <ShieldCheck className="w-5 h-5" />
                 <span className="text-sm font-medium">Available Balance</span>
                 <button
                   onClick={() => setShowBalance(!showBalance)}
-                  className="p-1 hover:bg-white/20 rounded-full transition-colors"
+                  className="p-1 hover:bg-white/20 rounded-full transition-all"
+                  data-testid="button-toggle-balance"
                 >
                   <Eye className="w-4 h-4" />
                 </button>
@@ -462,14 +469,15 @@ const Dashboard: React.FC<DashboardProps> = ({ user, onAddMoney, onLogout }) => 
             </div>
             
             <div className="flex flex-col items-center justify-center text-center mb-6">
-              <div className="text-3xl font-bold mb-4">
-                {showBalance ? `₦${balance.toLocaleString()}.00` : '****'}
+              <div className="text-4xl font-bold mb-6 tracking-tight">
+                {showBalance ? `₦${balance.toLocaleString()}.00` : '₦****'}
               </div>
               <Button
                 onClick={handleAddMoneyClick}
-                className="bg-white text-green-600 hover:bg-gray-50 rounded-full px-6 py-2 font-medium transition-all duration-200 transform hover:scale-105"
+                className="bg-white text-green-600 hover:bg-gray-50 rounded-full px-8 py-3 font-semibold transition-all duration-300 transform hover:scale-105 shadow-xl hover:shadow-2xl"
+                data-testid="button-claim-bonus"
               >
-                <Gift className="w-4 h-4 mr-2" />
+                <Gift className="w-5 h-5 mr-2" />
                 Claim Bonus 🎁
               </Button>
             </div>
@@ -479,11 +487,16 @@ const Dashboard: React.FC<DashboardProps> = ({ user, onAddMoney, onLogout }) => 
         {/* Quick Actions */}
         <div className="grid grid-cols-3 gap-4">
           {quickActions.map((action, index) => (
-            <div key={index} className="text-center cursor-pointer" onClick={() => handleQuickActionClick(action)}>
-              <div className={`w-12 h-12 rounded-full ${action.color} flex items-center justify-center mx-auto mb-3`}>
-                <action.icon className="w-6 h-6" />
+            <div 
+              key={index} 
+              className="text-center cursor-pointer group" 
+              onClick={() => handleQuickActionClick(action)}
+              data-testid={`action-${action.title.toLowerCase()}`}
+            >
+              <div className={`w-14 h-14 rounded-2xl ${action.color} flex items-center justify-center mx-auto mb-3 card-shadow hover-lift transition-all duration-300 group-hover:shadow-lg`}>
+                <action.icon className="w-6 h-6 group-hover:scale-110 transition-transform" />
               </div>
-              <p className="text-sm font-medium text-gray-700">{action.title}</p>
+              <p className="text-sm font-semibold text-gray-700 group-hover:text-green-600 transition-colors">{action.title}</p>
             </div>
           ))}
         </div>
@@ -491,11 +504,16 @@ const Dashboard: React.FC<DashboardProps> = ({ user, onAddMoney, onLogout }) => 
         {/* Services Grid */}
         <div className="grid grid-cols-4 gap-4">
           {services.map((service, index) => (
-            <div key={index} className="text-center cursor-pointer" onClick={() => handleServiceClick(service)}>
-              <div className={`w-10 h-10 rounded-full ${service.color} flex items-center justify-center mx-auto mb-2`}>
-                <service.icon className="w-5 h-5" />
+            <div 
+              key={index} 
+              className="text-center cursor-pointer group" 
+              onClick={() => handleServiceClick(service)}
+              data-testid={`service-${service.title.toLowerCase()}`}
+            >
+              <div className={`w-12 h-12 rounded-xl ${service.color} flex items-center justify-center mx-auto mb-2 card-shadow hover-lift transition-all duration-300 group-hover:shadow-md`}>
+                <service.icon className="w-5 h-5 group-hover:scale-110 transition-transform" />
               </div>
-              <p className="text-xs font-medium text-gray-700">{service.title}</p>
+              <p className="text-xs font-medium text-gray-700 group-hover:text-green-600 transition-colors">{service.title}</p>
             </div>
           ))}
         </div>
@@ -507,12 +525,12 @@ const Dashboard: React.FC<DashboardProps> = ({ user, onAddMoney, onLogout }) => 
               {promoImages.map((image, index) => (
                 <CarouselItem key={index}>
                   <div className="p-1">
-                    <Card className="border-0 shadow-lg overflow-hidden">
+                    <Card className="border-0 card-shadow-lg overflow-hidden animate-scaleIn hover-lift">
                       <CardContent className="p-0">
                         <img 
                           src={image} 
                           alt={`FairMoney Promo ${index + 1}`}
-                          className="w-full h-32 object-cover"
+                          className="w-full h-36 object-cover"
                         />
                       </CardContent>
                     </Card>

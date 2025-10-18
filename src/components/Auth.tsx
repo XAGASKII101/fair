@@ -152,10 +152,10 @@ const Auth: React.FC<AuthProps> = ({ onLogin }) => {
       />
 
       {/* Background Pattern */}
-      <div className="absolute inset-0 opacity-10">
-        <div className="absolute top-20 left-10 w-32 h-32 bg-white rounded-full blur-xl"></div>
-        <div className="absolute bottom-20 right-10 w-40 h-40 bg-white rounded-full blur-xl"></div>
-        <div className="absolute top-1/2 left-1/3 w-24 h-24 bg-white rounded-full blur-lg"></div>
+      <div className="absolute inset-0 opacity-20">
+        <div className="absolute top-20 left-10 w-40 h-40 bg-white rounded-full blur-3xl animate-pulse"></div>
+        <div className="absolute bottom-20 right-10 w-48 h-48 bg-white/60 rounded-full blur-3xl animate-pulse delay-150"></div>
+        <div className="absolute top-1/2 left-1/3 w-32 h-32 bg-white/80 rounded-full blur-2xl animate-pulse delay-300"></div>
       </div>
 
       {/* Banner Carousel - Reduced Height */}
@@ -165,7 +165,7 @@ const Auth: React.FC<AuthProps> = ({ onLogin }) => {
             {bannerImages.map((image, index) => (
               <CarouselItem key={index}>
                 <div className="p-1">
-                  <Card className="border-0 shadow-lg overflow-hidden">
+                  <Card className="border-0 card-shadow-lg overflow-hidden animate-scaleIn">
                     <CardContent className="p-0">
                       <img 
                         src={image} 
@@ -178,25 +178,26 @@ const Auth: React.FC<AuthProps> = ({ onLogin }) => {
               </CarouselItem>
             ))}
           </CarouselContent>
-          <CarouselPrevious />
-          <CarouselNext />
+          <CarouselPrevious className="bg-white/90 hover:bg-white" />
+          <CarouselNext className="bg-white/90 hover:bg-white" />
         </Carousel>
       </div>
 
-      <Card className="w-full max-w-md relative z-10 shadow-2xl border-0 bg-white/95 backdrop-blur-sm animate-fadeIn">
+      <Card className="w-full max-w-md relative z-10 card-shadow-lg border-0 bg-white/98 backdrop-blur-sm animate-fadeIn">
         <CardHeader className="text-center pb-6">
-          <CardTitle className="text-3xl font-bold gradient-green bg-clip-text text-transparent mb-2">
+          <CardTitle className="text-3xl font-bold bg-gradient-to-r from-green-600 via-green-500 to-green-600 bg-clip-text text-transparent mb-2">
             FairMonie Pay
           </CardTitle>
+          <p className="text-sm text-gray-600 mt-1">Rebuilding Africa's money story</p>
         </CardHeader>
 
         <CardContent className="px-6 pb-8">
           <Tabs defaultValue="login" className="space-y-6">
-            <TabsList className="grid w-full grid-cols-2 bg-gray-100">
-              <TabsTrigger value="login" className="data-[state=active]:bg-green-600 data-[state=active]:text-white">
+            <TabsList className="grid w-full grid-cols-2 bg-gray-100/80 p-1">
+              <TabsTrigger value="login" className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-green-600 data-[state=active]:to-green-500 data-[state=active]:text-white transition-all duration-200 rounded-md">
                 LOGIN
               </TabsTrigger>
-              <TabsTrigger value="signup" className="data-[state=active]:bg-green-600 data-[state=active]:text-white">
+              <TabsTrigger value="signup" className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-green-600 data-[state=active]:to-green-500 data-[state=active]:text-white transition-all duration-200 rounded-md">
                 CREATE ACCOUNT
               </TabsTrigger>
             </TabsList>
@@ -232,8 +233,9 @@ const Auth: React.FC<AuthProps> = ({ onLogin }) => {
                 </div>
                 <Button
                   type="submit"
-                  className="w-full h-14 bg-green-600 hover:bg-green-700 text-white font-medium rounded-full transition-all duration-200 transform hover:scale-105"
+                  className="w-full h-14 bg-gradient-to-r from-green-600 to-green-500 hover:from-green-700 hover:to-green-600 text-white font-semibold rounded-full transition-all duration-300 transform hover:scale-[1.02] hover:shadow-lg shadow-green-500/20"
                   disabled={isLoading}
+                  data-testid="button-login"
                 >
                   {isLoading ? 'Signing in...' : 'LOGIN'}
                 </Button>
@@ -291,8 +293,9 @@ const Auth: React.FC<AuthProps> = ({ onLogin }) => {
                 </div>
                 <Button
                   type="submit"
-                  className="w-full h-14 bg-green-600 hover:bg-green-700 text-white font-medium rounded-full transition-all duration-200 transform hover:scale-105"
+                  className="w-full h-14 bg-gradient-to-r from-green-600 to-green-500 hover:from-green-700 hover:to-green-600 text-white font-semibold rounded-full transition-all duration-300 transform hover:scale-[1.02] hover:shadow-lg shadow-green-500/20"
                   disabled={isLoading}
+                  data-testid="button-signup"
                 >
                   {isLoading ? 'Creating account...' : 'CREATE ACCOUNT'}
                 </Button>
