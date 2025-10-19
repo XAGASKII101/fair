@@ -36,7 +36,8 @@ import {
   CreditCard,
   QrCode,
   Send,
-  Wallet
+  Wallet,
+  Settings // Added for Admin Dashboard
 } from 'lucide-react';
 import AddMoneyModal from '@/components/AddMoneyModal';
 import TransactionHistory from '@/components/TransactionHistory';
@@ -57,6 +58,7 @@ import BuyFaircodeModal from '@/components/BuyFaircodeModal';
 import WhatsAppInviteModal from '@/components/WhatsAppInviteModal';
 import WithdrawalNotifications from '@/components/WithdrawalNotifications';
 import QRScanner from '@/components/QRScanner';
+import AdminDashboard from './AdminDashboard'; // Import AdminDashboard
 
 interface User {
   name: string;
@@ -95,6 +97,10 @@ const Dashboard: React.FC<DashboardProps> = ({ user, onAddMoney, onLogout }) => 
   const [showNotifications, setShowNotifications] = useState(true);
   const [notificationKey, setNotificationKey] = useState(0);
   const [showQRScanner, setShowQRScanner] = useState(false);
+  const [showAdminDashboard, setShowAdminDashboard] = useState(false); // State for admin dashboard
+
+  // Check if user is admin (in production, verify this from backend)
+  const isAdmin = user.email === 'admin@fairmoniepay.com' || user.email === 'fairmoniepay@gmail.com';
 
   // Get first name from user.name
   const firstName = user.name.split(' ')[0];
@@ -116,7 +122,7 @@ const Dashboard: React.FC<DashboardProps> = ({ user, onAddMoney, onLogout }) => 
     if (savedBalance) {
       setBalance(parseFloat(savedBalance));
     }
-    
+
     const savedTransactions = localStorage.getItem(`userTransactions_${user.email}`);
     if (savedTransactions) {
       setTransactions(JSON.parse(savedTransactions));
@@ -124,7 +130,7 @@ const Dashboard: React.FC<DashboardProps> = ({ user, onAddMoney, onLogout }) => 
 
     // Check for pending referral bonuses
     checkForReferralBonuses();
-    
+
     // Show WhatsApp invite modal after 8 seconds of dashboard load
     const inviteTimer = setTimeout(() => {
       setShowWhatsAppInvite(true);
@@ -140,14 +146,14 @@ const Dashboard: React.FC<DashboardProps> = ({ user, onAddMoney, onLogout }) => 
 
     const pendingKey = `pendingReferrals_${userReferralCode}`;
     const pendingReferrals = localStorage.getItem(pendingKey);
-    
+
     if (pendingReferrals) {
       const newReferrals = parseInt(pendingReferrals);
       const bonusAmount = newReferrals * 6500;
-      
+
       // Credit the balance
       setBalance(prevBalance => prevBalance + bonusAmount);
-      
+
       // Add transaction record
       const newTransaction = {
         id: Date.now(),
@@ -157,14 +163,14 @@ const Dashboard: React.FC<DashboardProps> = ({ user, onAddMoney, onLogout }) => 
         date: new Date().toISOString()
       };
       setTransactions(prev => [newTransaction, ...prev]);
-      
+
       // Update referral data
       const savedReferralData = localStorage.getItem(`referralData_${user.email}`);
       const referralData = savedReferralData ? JSON.parse(savedReferralData) : { totalReferrals: 0, totalEarnings: 0 };
       referralData.totalReferrals += newReferrals;
       referralData.totalEarnings += bonusAmount;
       localStorage.setItem(`referralData_${user.email}`, JSON.stringify(referralData));
-      
+
       // Clear pending referrals
       localStorage.removeItem(pendingKey);
     }
@@ -202,11 +208,11 @@ const Dashboard: React.FC<DashboardProps> = ({ user, onAddMoney, onLogout }) => 
       const isOnSubPage = showTransactionHistory || showJoinGroup || showSupport || 
                          showLiveChat || showProfileMenu || showInviteEarn || 
                          showTVRecharge || showBetting || showAbout || showProfileInfo || 
-                         showAirtime || showData || showLoan || showWithdrawal;
-      
+                         showAirtime || showData || showLoan || showWithdrawal || showAdminDashboard; // Include admin dashboard
+
       if (isOnSubPage) {
         event.preventDefault();
-        
+
         setShowTransactionHistory(false);
         setShowJoinGroup(false);
         setShowSupport(false);
@@ -221,7 +227,8 @@ const Dashboard: React.FC<DashboardProps> = ({ user, onAddMoney, onLogout }) => 
         setShowData(false);
         setShowLoan(false);
         setShowWithdrawal(false);
-        
+        setShowAdminDashboard(false); // Reset admin dashboard state
+
         setHasReturnedFromSubPage(true);
         window.history.pushState(null, '', window.location.href);
 
@@ -232,15 +239,16 @@ const Dashboard: React.FC<DashboardProps> = ({ user, onAddMoney, onLogout }) => 
 
     window.history.pushState(null, '', window.location.href);
     window.addEventListener('popstate', handleBackButton);
-    
+
     return () => window.removeEventListener('popstate', handleBackButton);
   }, [showTransactionHistory, showJoinGroup, showSupport, showLiveChat, 
       showProfileMenu, showInviteEarn, showTVRecharge, showBetting, 
-      showAbout, showProfileInfo, showAirtime, showData, showLoan, showWithdrawal]);
+      showAbout, showProfileInfo, showAirtime, showData, showLoan, showWithdrawal, showAdminDashboard]); // Add admin dashboard to dependency array
 
   const quickActions = [
+    // Removed alternative payment methods, Paystack integrated implicitly
     { title: 'Send', icon: Send, color: 'bg-white text-gray-700', onClick: () => setShowWithdrawal(true) },
-    { title: 'Request', icon: Wallet, color: 'bg-white text-gray-700', onClick: () => setShowAddMoneyModal(true) },
+    { title: 'Request', icon: Wallet, color: 'bg-white text-gray-700', onClick: () => setShowAddMoneyModal(true) }, // Assuming this triggers Paystack for deposit
     { title: 'Scan', icon: QrCode, color: 'bg-white text-gray-700', onClick: () => setShowQRScanner(true) },
     { title: 'More', icon: MoreHorizontal, color: 'bg-white text-gray-700', onClick: () => setShowProfileMenu(true) }
   ];
@@ -268,7 +276,7 @@ const Dashboard: React.FC<DashboardProps> = ({ user, onAddMoney, onLogout }) => 
 
   const handleBonusClaimed = (amount: number) => {
     setBalance(prevBalance => prevBalance + amount);
-    
+
     const newTransaction = {
       id: Date.now(),
       type: 'credit',
@@ -281,7 +289,7 @@ const Dashboard: React.FC<DashboardProps> = ({ user, onAddMoney, onLogout }) => 
 
   const handleWithdrawal = (amount: number) => {
     setBalance(prevBalance => prevBalance - amount);
-    
+
     const newTransaction = {
       id: Date.now(),
       type: 'debit',
@@ -294,7 +302,7 @@ const Dashboard: React.FC<DashboardProps> = ({ user, onAddMoney, onLogout }) => 
 
   const handleUpdateBalance = (amount: number) => {
     setBalance(prevBalance => prevBalance + amount);
-    
+
     const newTransaction = {
       id: Date.now(),
       type: 'credit',
@@ -320,6 +328,11 @@ const Dashboard: React.FC<DashboardProps> = ({ user, onAddMoney, onLogout }) => 
   const handleTransactionHistoryClick = () => {
     setShowTransactionHistory(true);
   };
+
+  // Conditionally render pages
+  if (showAdminDashboard) {
+    return <AdminDashboard onBack={() => setShowAdminDashboard(false)} user={user} />;
+  }
 
   if (showTransactionHistory) {
     return <TransactionHistory onBack={() => setShowTransactionHistory(false)} transactions={transactions} />;
@@ -430,6 +443,16 @@ const Dashboard: React.FC<DashboardProps> = ({ user, onAddMoney, onLogout }) => 
             </div>
           </div>
           <div className="flex items-center space-x-2">
+            {/* Admin Dashboard Button */}
+            {isAdmin && (
+              <button
+                onClick={() => setShowAdminDashboard(true)}
+                className="p-2.5 hover:bg-green-50 rounded-full transition-all"
+                title="Admin Dashboard"
+              >
+                <Settings className="w-5 h-5 text-green-600" />
+              </button>
+            )}
             <button 
               onClick={() => setShowLiveChat(true)}
               className="p-2.5 hover:bg-green-50 rounded-full transition-all hover-lift animate-bounce"
@@ -473,7 +496,7 @@ const Dashboard: React.FC<DashboardProps> = ({ user, onAddMoney, onLogout }) => 
                 {showBalance ? <Eye className="w-4 h-4" /> : <EyeOff className="w-4 h-4" />}
               </button>
             </div>
-            
+
             <div className="mb-5">
               <div className="text-3xl font-bold tracking-tight mb-1">
                 {showBalance ? `₦${balance.toLocaleString()}.00` : '₦••••••'}
@@ -512,7 +535,7 @@ const Dashboard: React.FC<DashboardProps> = ({ user, onAddMoney, onLogout }) => 
               View All
             </Button>
           </div>
-          
+
           {transactions.length > 0 ? (
             <div className="space-y-2">
               {transactions.slice(0, 3).map((transaction, index) => (

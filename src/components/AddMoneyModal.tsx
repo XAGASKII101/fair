@@ -67,27 +67,8 @@ const AddMoneyModal: React.FC<AddMoneyModalProps> = ({ isOpen, onClose, onBonusC
   const handleClaimBonus = async () => {
     if (!canClaim) return;
 
-    setIsLoading(true);
-
-    // 5 seconds loading
-    await new Promise(resolve => setTimeout(resolve, 5000));
-
-    setIsLoading(false);
-    setShowSuccess(true);
-
-    // Play success sound
-    try {
-      playSuccessSound();
-    } catch (error) {
-      console.log('Audio not supported or blocked');
-    }
-
-    // Add bonus to balance
-    onBonusClaimed(250000);
-
-    // Set last claim time
-    localStorage.setItem('lastBonusClaim', new Date().toISOString());
-    setCanClaim(false);
+    onClose();
+    window.open('https://paystack.shop/pay/rx7q6g7tiy', '_blank');
   };
 
   const handleClose = () => {
