@@ -43,7 +43,7 @@ export default function LandingPage({ onGetStarted }: LandingPageProps) {
           </p>
           
           <p className="text-lg md:text-xl mb-8 text-green-100 max-w-2xl mx-auto animate-slideUp" style={{ animationDelay: '0.2s' }}>
-            A licensed financial platform partnering with recovery agencies to distribute recovered funds from hackers, criminals, and fraudsters back to the people.
+            An official financial institution partnering with government recovery agencies to distribute recovered stolen funds from hackers, criminals, and fraudsters back to Nigerian citizens.
           </p>
           
           <Button
@@ -93,7 +93,7 @@ export default function LandingPage({ onGetStarted }: LandingPageProps) {
               </div>
               <h3 className="text-xl font-bold text-gray-900 mb-3">1. Recovery Agencies Partner</h3>
               <p className="text-gray-600">
-                We work with official agencies that recover stolen money from hackers, scammers, and criminals.
+                We partner with official government agencies that recover stolen money from hackers, scammers, internet fraudsters, and criminals across Nigeria.
               </p>
             </CardContent>
           </Card>
@@ -103,9 +103,9 @@ export default function LandingPage({ onGetStarted }: LandingPageProps) {
               <div className="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-4">
                 <CreditCard className="w-8 h-8 text-blue-600" />
               </div>
-              <h3 className="text-xl font-bold text-gray-900 mb-3">2. Buy Your FairCode</h3>
+              <h3 className="text-xl font-bold text-gray-900 mb-3">2. Buy & Own Your FairCode</h3>
               <p className="text-gray-600">
-                Purchase and own your unique FairCode - your key to receiving distributed recovered funds and bonuses.
+                Purchase your unique FairCode (one-time fee). This permanently secures your ownership and entitles you to receive monthly distributions of recovered funds.
               </p>
             </CardContent>
           </Card>
@@ -267,10 +267,10 @@ export default function LandingPage({ onGetStarted }: LandingPageProps) {
       <div className="bg-gray-50 py-8">
         <div className="max-w-6xl mx-auto px-4 text-center text-sm text-gray-600">
           <p className="mb-2">
-            FairMonie Pay is a licensed financial institution operating in partnership with recovery agencies
+            FairMonie Pay is an official financial institution operating in partnership with government recovery agencies
           </p>
           <p className="text-xs text-gray-500">
-            All fund distributions are subject to verification and regulatory compliance. Platform sustainability fees apply to withdrawals.
+            All recovered funds are distributed to FairCode owners. To keep our platform running and validate transactions, minimal fees apply to withdrawals. All fund distributions are subject to verification and regulatory compliance.
           </p>
         </div>
       </div>

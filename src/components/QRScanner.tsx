@@ -70,10 +70,29 @@ const QRScanner: React.FC<QRScannerProps> = ({ onClose, onScanSuccess }) => {
   };
 
   const handleClose = () => {
-    if (scannerRef.current && scanning) {
+    if (scannerRef.current) {
       scannerRef.current.stop().catch(console.error);
     }
     onClose();
+  };
+
+  const handleScanSuccess = (decodedText: string) => {
+    setScannedData(decodedText);
+    setScanning(false);
+    if (scannerRef.current) {
+      scannerRef.current.stop().catch(console.error);
+    }
+    
+    // Show success toast
+    toast({
+      title: "QR Code Scanned!",
+      description: "Processing payment information...",
+      duration: 3000,
+    });
+    
+    if (onScanSuccess) {
+      onScanSuccess(decodedText);
+    }
   };
 
   return (

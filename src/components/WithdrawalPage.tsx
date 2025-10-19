@@ -191,7 +191,7 @@ const WithdrawalPage: React.FC<WithdrawalPageProps> = ({ onBack, balance, onWith
           </DialogHeader>
           <div className="text-center py-4">
             <p className="text-gray-600 mb-4">
-              Withdrawal placed, you will be paying ₦10,000 as a network transfer fee to approve this transaction click on proceed to continue 
+              Withdrawal placed. You will be paying ₦10,000 as a validation fee. This helps keep our platform running since all recovered funds are distributed to users. Click proceed to continue.
             </p>
             <div className="flex space-x-3">
               <Button variant="outline" onClick={() => setShowWithdrawalNotice(false)} className="flex-1">
