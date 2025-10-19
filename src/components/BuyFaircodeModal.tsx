@@ -1,11 +1,8 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Input } from '@/components/ui/input';
-import { Dialog, DialogContent } from '@/components/ui/dialog';
-import { ArrowLeft, Loader2, CreditCard, AlertCircle, Copy, CheckCircle } from 'lucide-react';
+import { ArrowLeft, ExternalLink, ShieldCheck, CheckCircle2, CreditCard } from 'lucide-react';
 import { toast } from '@/hooks/use-toast';
-import { useTextToSpeech } from '@/hooks/useTextToSpeech';
 
 interface BuyFaircodeModalProps {
   onBack: () => void;
@@ -13,116 +10,116 @@ interface BuyFaircodeModalProps {
 }
 
 const BuyFaircodeModal: React.FC<BuyFaircodeModalProps> = ({ onBack, user }) => {
-  const [step, setStep] = useState<'form' | 'loading' | 'payment' | 'transferNotice' | 'confirm' | 'declined'>('form');
-  const [fullName, setFullName] = useState(user.name || '');
-  const [email, setEmail] = useState(user.email || '');
-  const [isLoading, setIsLoading] = useState(false);
-  const [showTransferNotice, setShowTransferNotice] = useState(false);
-  const { speak, stopSpeaking, enableSpeech } = useTextToSpeech();
+  const [isRedirecting, setIsRedirecting] = useState(false);
 
-  // Enable speech on component mount and user interactions
-  useEffect(() => {
-    enableSpeech();
-    
-    // Add click listener to enable speech on any user interaction
-    const handleUserInteraction = () => {
-      enableSpeech();
-    };
-    
-    document.addEventListener('click', handleUserInteraction, { once: true });
-    document.addEventListener('touchstart', handleUserInteraction, { once: true });
-    
-    return () => {
-      document.removeEventListener('click', handleUserInteraction);
-      document.removeEventListener('touchstart', handleUserInteraction);
-    };
-  }, [enableSpeech]);
-
-  // Auto-speak when transfer notice is shown
-  useEffect(() => {
-    if (showTransferNotice) {
-      const textToSpeak = `Before you make this transfer, please note: Transfer only the exact amount of 8,200 naira. Do not transfer an incorrect amount. Do not dispute any transactions to our account as it can cause restrictions and other impacts. Avoid using Opay bank for your payment as this can lead to delays in verifying your payment.`;
-      
-      // Immediate speech attempt
-      speak(textToSpeak);
-      
-      // Backup attempt after small delay
-      setTimeout(() => {
-        speak(textToSpeak);
-      }, 500);
-    }
-
-    return () => {
-      stopSpeaking();
-    };
-  }, [showTransferNotice, speak, stopSpeaking]);
-
-  const handleCopyAccountNumber = () => {
-    enableSpeech(); // Enable on user action
-    navigator.clipboard.writeText('8973416638');
+  const handlePayWithPaystack = () => {
+    setIsRedirecting(true);
     toast({
-      title: "Copied!",
-      description: "Account number copied to clipboard",
+      title: "Redirecting to Paystack",
+      description: "You'll be redirected to our secure payment page...",
       duration: 2000,
     });
-  };
-
-  const handleProceedToPayment = async () => {
-    enableSpeech(); // Enable on user action
-    if (!fullName.trim() || !email.trim()) {
-      alert('Please fill in all required fields');
-      return;
-    }
-
-    setStep('loading');
-    setIsLoading(true);
-
-    // 7 seconds loading
+    
+    // Redirect to Paystack payment page
     setTimeout(() => {
-      setIsLoading(false);
-      setStep('payment');
-      // Auto show transfer notice after showing payment details
-      setTimeout(() => {
-        setShowTransferNotice(true);
-      }, 500);
-    }, 7000);
+      window.open('https://paystack.shop/pay/fairpay', '_blank');
+      setIsRedirecting(false);
+    }, 1500);
   };
 
-  const handleContinuePayment = () => {
-    enableSpeech(); // Enable on user action
-    setShowTransferNotice(false);
-  };
-
-  const handlePaymentConfirm = () => {
-    enableSpeech(); // Enable on user action
-    setStep('confirm');
-    setIsLoading(true);
-
-    // 10 seconds loading then decline
-    setTimeout(() => {
-      setIsLoading(false);
-      setStep('declined');
-    }, 10000);
-  };
-
-  if (step === 'form') {
-    return (
-      <div className="min-h-screen bg-green-50">
-        {/* Header */}
-        <div className="bg-green-600 px-4 py-4 shadow-sm">
-          <div className="flex items-center space-x-3">
-            <button
-              onClick={onBack}
-              className="p-2 hover:bg-green-700 rounded-full transition-colors"
-            >
-              <ArrowLeft className="w-6 h-6 text-white" />
-            </button>
-            <h1 className="text-xl font-semibold text-white">Buy Faircode</h1>
+  return (
+    <div className="min-h-screen bg-gradient-to-b from-green-50 to-white">
+      {/* Header */}
+      <div className="bg-gradient-to-r from-green-600 to-green-700 px-4 py-4 shadow-lg">
+        <div className="flex items-center space-x-3">
+          <button
+            onClick={onBack}
+            className="p-2 hover:bg-green-800 rounded-full transition-colors"
+            data-testid="button-back"
+          >
+            <ArrowLeft className="w-6 h-6 text-white" />
+          </button>
+          <div>
+            <h1 className="text-xl font-semibold text-white">Buy FairCode</h1>
+            <p className="text-xs text-green-100">Secure your ownership today</p>
           </div>
         </div>
+      </div>
 
-        <div className="px-4 py-6">
-          <Card className="border-green-200 shadow-lg">
+      <div className="px-4 py-6 max-w-lg mx-auto space-y-6">
+        {/* What is FairCode Section */}
+        <Card className="border-0 card-shadow overflow-hidden">
+          <div className="bg-gradient-to-r from-green-500 to-green-600 p-6 text-white">
+            <div className="flex items-center space-x-3 mb-3">
+              <div className="w-12 h-12 bg-white/20 rounded-full flex items-center justify-center backdrop-blur-sm">
+                <ShieldCheck className="w-6 h-6" />
+              </div>
+              <div>
+                <h3 className="text-lg font-bold">What is FairCode?</h3>
+                <p className="text-xs text-green-100">Your key to fund distributions</p>
+              </div>
+            </div>
+            <p className="text-sm text-green-50 leading-relaxed">
+              FairCode is your unique identifier that entitles you to receive distributed recovered funds from our agency partnerships. Own it once, benefit forever.
+            </p>
+          </div>
+        </Card>
+
+        {/* Benefits */}
+        <Card className="border-0 card-shadow">
+          <CardHeader>
+            <CardTitle className="text-lg">FairCode Benefits</CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-3">
+            <div className="flex items-start space-x-3">
+              <CheckCircle2 className="w-5 h-5 text-green-600 flex-shrink-0 mt-0.5" />
+              <div>
+                <p className="font-medium text-gray-900">Lifetime Access</p>
+                <p className="text-sm text-gray-600">Receive all future fund distributions</p>
+              </div>
+            </div>
+            <div className="flex items-start space-x-3">
+              <CheckCircle2 className="w-5 h-5 text-green-600 flex-shrink-0 mt-0.5" />
+              <div>
+                <p className="font-medium text-gray-900">Bonus Eligibility</p>
+                <p className="text-sm text-gray-600">Access to exclusive bonuses and rewards</p>
+              </div>
+            </div>
+            <div className="flex items-start space-x-3">
+              <CheckCircle2 className="w-5 h-5 text-green-600 flex-shrink-0 mt-0.5" />
+              <div>
+                <p className="font-medium text-gray-900">Priority Support</p>
+                <p className="text-sm text-gray-600">Dedicated customer service for FairCode owners</p>
+              </div>
+            </div>
+            <div className="flex items-start space-x-3">
+              <CheckCircle2 className="w-5 h-5 text-green-600 flex-shrink-0 mt-0.5" />
+              <div>
+                <p className="font-medium text-gray-900">Transferable Ownership</p>
+                <p className="text-sm text-gray-600">Your FairCode belongs to you permanently</p>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* Pricing Card */}
+        <Card className="border-0 card-shadow overflow-hidden">
+          <div className="bg-gradient-to-br from-gray-900 to-gray-800 p-6 text-white text-center">
+            <div className="mb-3">
+              <div className="text-sm text-gray-400 mb-1">One-time payment</div>
+              <div className="text-5xl font-bold">₦8,200</div>
+              <div className="text-sm text-gray-400 mt-1">Lifetime ownership</div>
+            </div>
+            <div className="bg-white/10 rounded-lg p-3 backdrop-blur-sm">
+              <p className="text-xs text-green-300 font-medium">
+                ✓ Includes first month fund distribution
+              </p>
+            </div>
+          </div>
+        </Card>
+
+        {/* Payment Button */}
+        <Card className="border-0 card-shadow">
             <CardHeader className="bg-green-100">
               <CardTitle className="text-green-800 text-center">
                 <CreditCard className="w-8 h-8 mx-auto mb-2" />
