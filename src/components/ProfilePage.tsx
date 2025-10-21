@@ -101,50 +101,52 @@ const ProfilePage: React.FC<ProfilePageProps> = ({ onBack, user, onLogout }) => 
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-50 to-green-50">
-      {/* Header */}
-      <div className="bg-gradient-to-r from-green-600 to-green-700 px-4 py-4 shadow-lg">
+      {/* Header - Enhanced */}
+      <div className="bg-gradient-to-r from-green-600 via-green-700 to-green-600 px-4 py-5 shadow-lg">
         <div className="flex items-center justify-between">
           <div className="flex items-center space-x-3">
-            <button onClick={onBack} className="p-2 hover:bg-green-800 rounded-full transition-colors">
+            <button onClick={onBack} className="p-2 hover:bg-green-800 rounded-full transition-all transform hover:scale-110">
               <ArrowLeft className="w-6 h-6 text-white" />
             </button>
             <div>
-              <h1 className="text-xl font-semibold text-white">My Profile</h1>
-              <p className="text-xs text-green-100">Manage your account</p>
+              <h1 className="text-2xl font-bold text-white">My Profile</h1>
+              <p className="text-sm text-green-100">Manage your account settings</p>
             </div>
           </div>
-          <button onClick={handleLogout} className="p-2 hover:bg-red-600 rounded-full transition-colors">
-            <LogOut className="w-5 h-5 text-white" />
+          <button onClick={handleLogout} className="px-4 py-2 bg-red-500 hover:bg-red-600 rounded-full transition-all flex items-center space-x-2 shadow-lg">
+            <LogOut className="w-4 h-4 text-white" />
+            <span className="text-sm font-semibold text-white">Logout</span>
           </button>
         </div>
       </div>
 
       <div className="px-4 py-6 max-w-4xl mx-auto">
-        {/* Profile Header */}
-        <Card className="border-0 shadow-lg mb-6">
-          <CardContent className="p-6">
-            <div className="flex items-center space-x-4">
-              <Avatar className="w-20 h-20 ring-4 ring-green-100">
-                <AvatarFallback className="bg-gradient-to-br from-green-500 to-green-600 text-white text-2xl font-bold">
+        {/* Profile Header - Enhanced */}
+        <Card className="border-0 shadow-xl mb-6 overflow-hidden relative bg-gradient-to-br from-white to-green-50/30">
+          <div className="absolute top-0 right-0 w-40 h-40 bg-green-500/5 rounded-full blur-3xl"></div>
+          <CardContent className="p-8 relative z-10">
+            <div className="flex items-center space-x-5">
+              <Avatar className="w-24 h-24 ring-4 ring-green-200 shadow-lg">
+                <AvatarFallback className="bg-gradient-to-br from-green-500 via-green-600 to-green-700 text-white text-3xl font-bold">
                   {user.name.charAt(0)}
                 </AvatarFallback>
               </Avatar>
               <div className="flex-1">
-                <h2 className="text-2xl font-bold text-gray-900">{user.name}</h2>
-                <p className="text-gray-600">{user.email}</p>
-                <div className="flex items-center space-x-2 mt-2">
-                  <span className="px-3 py-1 bg-green-100 text-green-700 rounded-full text-xs font-semibold">
-                    ✓ Verified
+                <h2 className="text-3xl font-bold bg-gradient-to-r from-green-600 to-green-700 bg-clip-text text-transparent">{user.name}</h2>
+                <p className="text-gray-600 text-lg mt-1">{user.email}</p>
+                <div className="flex items-center space-x-2 mt-3">
+                  <span className="px-4 py-1.5 bg-gradient-to-r from-green-500 to-green-600 text-white rounded-full text-xs font-bold shadow-md">
+                    ✓ Verified Account
                   </span>
-                  <span className="px-3 py-1 bg-blue-100 text-blue-700 rounded-full text-xs font-semibold">
+                  <span className="px-4 py-1.5 bg-gradient-to-r from-blue-500 to-blue-600 text-white rounded-full text-xs font-bold shadow-md">
                     FairCode: {userData.fairCode}
                   </span>
                 </div>
               </div>
               {!isEditing && activeTab === 'profile' && (
-                <Button onClick={() => setIsEditing(true)} variant="outline" size="sm">
+                <Button onClick={() => setIsEditing(true)} className="bg-green-600 hover:bg-green-700 text-white shadow-lg" size="lg">
                   <Edit2 className="w-4 h-4 mr-2" />
-                  Edit
+                  Edit Profile
                 </Button>
               )}
             </div>

@@ -424,22 +424,17 @@ const Dashboard: React.FC<DashboardProps> = ({ user, onAddMoney, onLogout }) => 
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-50 via-green-50/20 to-gray-50">
+    <div className="min-h-screen bg-gradient-to-b from-green-50 to-white">
       {/* Withdrawal Notifications - always visible and continuous */}
       <WithdrawalNotifications isVisible={true} />
 
-      {/* Header */}
-      <div className="bg-white/80 backdrop-blur-md px-4 py-4 card-shadow sticky top-0 z-10">
+      {/* Header - Enhanced with gradient background */}
+      <div className="bg-gradient-to-r from-green-600 via-green-700 to-green-600 px-4 py-4 shadow-lg sticky top-0 z-10">
         <div className="flex items-center justify-between">
           <div className="flex items-center space-x-3">
-            <Avatar className="w-12 h-12 ring-2 ring-green-100">
-              <AvatarFallback className="bg-gradient-to-br from-green-500 to-green-600 text-white font-bold text-lg">
-                {firstName.charAt(0)}
-              </AvatarFallback>
-            </Avatar>
             <div>
-              <span className="text-lg font-semibold text-gray-900 block">Hi, {firstName}</span>
-              <span className="text-xs text-gray-500">Welcome back!</span>
+              <h1 className="text-xl font-bold text-white">FairMonie Pay</h1>
+              <p className="text-xs text-green-100">Hi, {firstName}! Welcome back</p>
             </div>
           </div>
           <div className="flex items-center space-x-2">
@@ -447,42 +442,51 @@ const Dashboard: React.FC<DashboardProps> = ({ user, onAddMoney, onLogout }) => 
             {isAdmin && (
               <button
                 onClick={() => setShowAdminDashboard(true)}
-                className="p-2.5 hover:bg-green-50 rounded-full transition-all"
+                className="p-2.5 hover:bg-green-800 rounded-full transition-all"
                 title="Admin Dashboard"
               >
-                <Settings className="w-5 h-5 text-green-600" />
+                <Settings className="w-5 h-5 text-white" />
               </button>
             )}
             <button 
               onClick={() => setShowLiveChat(true)}
-              className="p-2.5 hover:bg-green-50 rounded-full transition-all hover-lift animate-bounce"
+              className="p-2.5 hover:bg-green-800 rounded-full transition-all"
               data-testid="button-live-chat"
             >
-              <Headphones className="w-5 h-5 text-green-600" />
-            </button>
-            <button className="p-2.5 hover:bg-gray-100 rounded-full transition-all">
-              <Maximize className="w-5 h-5 text-gray-600" />
+              <Headphones className="w-5 h-5 text-white" />
             </button>
             <button
               onClick={handleTransactionHistoryClick}
-              className="p-2.5 hover:bg-gray-100 rounded-full transition-all relative"
+              className="p-2.5 hover:bg-green-800 rounded-full transition-all relative"
               data-testid="button-notifications"
             >
-              <Bell className="w-5 h-5 text-gray-600" />
+              <Bell className="w-5 h-5 text-white" />
               {transactions.length > 0 && (
-                <span className="absolute -top-1 -right-1 bg-gradient-to-r from-red-500 to-red-600 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center font-bold shadow-lg">
+                <span className="absolute -top-1 -right-1 bg-white text-green-600 text-xs rounded-full w-5 h-5 flex items-center justify-center font-bold shadow-lg">
                   {transactions.length > 9 ? '9+' : transactions.length}
                 </span>
               )}
+            </button>
+            {/* Profile Icon */}
+            <button
+              onClick={() => setShowProfileMenu(true)}
+              className="p-1 hover:bg-green-800 rounded-full transition-all"
+            >
+              <Avatar className="w-9 h-9 ring-2 ring-white/30">
+                <AvatarFallback className="bg-white text-green-600 font-bold text-sm">
+                  {firstName.charAt(0)}
+                </AvatarFallback>
+              </Avatar>
             </button>
           </div>
         </div>
       </div>
 
       <div className="px-4 py-4 space-y-4 max-w-lg mx-auto">
-        {/* Balance Card - Mobile First Design */}
-        <Card className="bg-gradient-to-br from-gray-900 via-gray-800 to-black text-white border-0 card-shadow-lg animate-slideUp overflow-hidden relative">
-          <div className="absolute top-0 right-0 w-40 h-40 bg-green-500/20 rounded-full blur-3xl"></div>
+        {/* Balance Card - Enhanced Design */}
+        <Card className="bg-gradient-to-br from-green-600 via-green-700 to-green-800 text-white border-0 card-shadow-lg animate-slideUp overflow-hidden relative">
+          <div className="absolute top-0 right-0 w-40 h-40 bg-white/10 rounded-full blur-3xl"></div>
+          <div className="absolute bottom-0 left-0 w-32 h-32 bg-white/5 rounded-full blur-2xl"></div>
           <CardContent className="p-5 relative z-10">
             <div className="flex items-center justify-between mb-3">
               <div className="flex items-center space-x-2">
@@ -504,17 +508,17 @@ const Dashboard: React.FC<DashboardProps> = ({ user, onAddMoney, onLogout }) => 
               <div className="text-xs text-gray-400">Available balance</div>
             </div>
 
-            {/* Quick Actions - Inline */}
+            {/* Quick Actions - Enhanced */}
             <div className="grid grid-cols-4 gap-2">
               {quickActions.map((action, index) => (
                 <button
                   key={index}
                   onClick={() => handleQuickActionClick(action)}
-                  className="flex flex-col items-center justify-center p-3 bg-white/10 hover:bg-white/20 rounded-xl transition-all hover-lift backdrop-blur-sm"
+                  className="flex flex-col items-center justify-center p-3 bg-white/20 hover:bg-white/30 rounded-xl transition-all transform hover:scale-105 backdrop-blur-sm shadow-lg"
                   data-testid={`action-${action.title.toLowerCase()}`}
                 >
                   <action.icon className="w-5 h-5 mb-1.5" />
-                  <span className="text-xs font-medium">{action.title}</span>
+                  <span className="text-xs font-semibold">{action.title}</span>
                 </button>
               ))}
             </div>
@@ -586,26 +590,27 @@ const Dashboard: React.FC<DashboardProps> = ({ user, onAddMoney, onLogout }) => 
           )}
         </div>
 
-        {/* Services Grid - Card Based */}
+        {/* Services Grid - Enhanced Design */}
         <div className="space-y-3">
-          <h3 className="text-base font-semibold text-gray-900">Services</h3>
+          <h3 className="text-lg font-bold text-gray-900">Quick Services</h3>
           <div className="grid grid-cols-2 gap-3">
             {services.slice(0, 6).map((service, index) => (
               <Card 
                 key={index}
                 onClick={() => handleServiceClick(service)}
-                className={`border-0 card-shadow hover-lift cursor-pointer transition-all overflow-hidden ${
-                  index % 3 === 0 ? 'bg-gradient-to-br from-green-500 to-green-600 text-white' :
-                  index % 3 === 1 ? 'bg-gradient-to-br from-blue-500 to-blue-600 text-white' :
-                  'bg-gradient-to-br from-orange-500 to-orange-600 text-white'
+                className={`border-0 card-shadow-lg cursor-pointer transition-all transform hover:scale-105 overflow-hidden ${
+                  index % 3 === 0 ? 'bg-gradient-to-br from-green-500 via-green-600 to-green-700 text-white' :
+                  index % 3 === 1 ? 'bg-gradient-to-br from-blue-500 via-blue-600 to-blue-700 text-white' :
+                  'bg-gradient-to-br from-orange-500 via-orange-600 to-orange-700 text-white'
                 }`}
                 data-testid={`service-${service.title.toLowerCase()}`}
               >
-                <CardContent className="p-4 relative">
-                  <div className="absolute -right-2 -bottom-2 w-20 h-20 bg-white/10 rounded-full blur-2xl"></div>
+                <CardContent className="p-5 relative">
+                  <div className="absolute top-0 right-0 w-24 h-24 bg-white/10 rounded-full blur-3xl"></div>
+                  <div className="absolute bottom-0 left-0 w-16 h-16 bg-white/5 rounded-full blur-2xl"></div>
                   <div className="relative z-10">
-                    <service.icon className="w-8 h-8 mb-2" />
-                    <p className="text-sm font-semibold">{service.title}</p>
+                    <service.icon className="w-9 h-9 mb-3" />
+                    <p className="text-sm font-bold">{service.title}</p>
                   </div>
                 </CardContent>
               </Card>
@@ -613,21 +618,22 @@ const Dashboard: React.FC<DashboardProps> = ({ user, onAddMoney, onLogout }) => 
           </div>
         </div>
 
-        {/* Claim Bonus Button */}
-        <Card className="border-0 bg-gradient-to-r from-green-500 to-green-600 text-white card-shadow-lg overflow-hidden relative cursor-pointer hover-lift" onClick={handleAddMoneyClick}>
-          <div className="absolute top-0 right-0 w-32 h-32 bg-white/10 rounded-full blur-2xl"></div>
-          <CardContent className="p-5 relative z-10">
+        {/* Claim Bonus Button - Enhanced */}
+        <Card className="border-0 bg-gradient-to-r from-green-600 via-green-700 to-green-600 text-white card-shadow-lg overflow-hidden relative cursor-pointer transition-all transform hover:scale-[1.02]" onClick={handleAddMoneyClick}>
+          <div className="absolute top-0 right-0 w-40 h-40 bg-white/10 rounded-full blur-3xl"></div>
+          <div className="absolute bottom-0 left-0 w-32 h-32 bg-white/5 rounded-full blur-2xl"></div>
+          <CardContent className="p-6 relative z-10">
             <div className="flex items-center justify-between">
-              <div className="flex items-center space-x-3">
-                <div className="w-12 h-12 bg-white/20 rounded-full flex items-center justify-center backdrop-blur-sm">
-                  <Gift className="w-6 h-6" />
+              <div className="flex items-center space-x-4">
+                <div className="w-14 h-14 bg-white/20 rounded-full flex items-center justify-center backdrop-blur-sm shadow-lg">
+                  <Gift className="w-7 h-7" />
                 </div>
                 <div>
-                  <p className="font-bold text-lg">Claim Your Bonus</p>
-                  <p className="text-xs text-white/80">Get rewarded today</p>
+                  <p className="font-bold text-xl">Claim Your Bonus</p>
+                  <p className="text-sm text-green-100">Get rewarded today!</p>
                 </div>
               </div>
-              <ArrowUpRight className="w-5 h-5" />
+              <ArrowUpRight className="w-6 h-6" />
             </div>
           </CardContent>
         </Card>
