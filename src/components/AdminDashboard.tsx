@@ -8,9 +8,13 @@ import { ArrowLeft, Users, DollarSign, CreditCard, CheckCircle, XCircle, Search,
 
 interface AdminDashboardProps {
   onBack: () => void;
+  user: {
+    name: string;
+    email: string;
+  };
 }
 
-const AdminDashboard: React.FC<AdminDashboardProps> = ({ onBack }) => {
+const AdminDashboard: React.FC<AdminDashboardProps> = ({ onBack, user }) => {
   const [searchTerm, setSearchTerm] = useState('');
   const [activeTab, setActiveTab] = useState('overview');
 

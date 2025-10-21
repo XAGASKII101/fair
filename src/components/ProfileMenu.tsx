@@ -1,19 +1,27 @@
-
 import React, { useState } from 'react';
 import { Card, CardContent } from '@/components/ui/card';
-import { ArrowLeft, User, Info, Download, Play, CreditCard, LogOut } from 'lucide-react';
+import { ArrowLeft, User, Info, Download, Play, CreditCard, LogOut, Settings } from 'lucide-react';
 import BuyFaircodeModal from '@/components/BuyFaircodeModal';
 import YouTubeWatchPage from '@/components/YouTubeWatchPage';
+import { Button } from '@/components/ui/button';
 
 interface ProfileMenuProps {
   onBack: () => void;
-  user: { name: string; email: string };
+  user: {
+    name: string;
+    email: string;
+  };
   onProfileInfo: () => void;
   onAbout: () => void;
+  onAdminDashboard?: () => void;
   onLogout?: () => void;
 }
 
-const ProfileMenu: React.FC<ProfileMenuProps> = ({ onBack, user, onProfileInfo, onAbout, onLogout }) => {
+const ProfileMenu: React.FC<ProfileMenuProps> = ({ onBack, user, onLogout, onProfileInfo, onAbout, onAdminDashboard }) => {
+  const isAdmin = user.email === 'admin@fairmoniepay.com' ||
+                   user.email === 'fairmoniepay@gmail.com' ||
+                   user.email.toLowerCase().includes('admin');
+
   const [showBuyFaircode, setShowBuyFaircode] = useState(false);
   const [showYouTubeWatch, setShowYouTubeWatch] = useState(false);
 
@@ -72,6 +80,21 @@ const ProfileMenu: React.FC<ProfileMenuProps> = ({ onBack, user, onProfileInfo, 
             </CardContent>
           </Card>
         ))}
+
+        {isAdmin && onAdminDashboard && (
+          <Card className="border border-gray-200 hover:shadow-md transition-shadow cursor-pointer" onClick={onAdminDashboard}>
+            <CardContent className="p-3">
+              <div className="flex items-center space-x-4">
+                <div className="w-10 h-10 bg-green-100 rounded-full flex items-center justify-center">
+                  <Settings className="w-5 h-5 text-green-600" />
+                </div>
+                <div className="flex-1">
+                  <h3 className="font-semibold text-gray-900">Admin Dashboard</h3>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        )}
       </div>
     </div>
   );

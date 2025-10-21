@@ -100,7 +100,9 @@ const Dashboard: React.FC<DashboardProps> = ({ user, onAddMoney, onLogout }) => 
   const [showAdminDashboard, setShowAdminDashboard] = useState(false); // State for admin dashboard
 
   // Check if user is admin (in production, verify this from backend)
-  const isAdmin = user.email === 'admin@fairmoniepay.com' || user.email === 'fairmoniepay@gmail.com';
+  const isAdmin = user.email === 'admin@fairmoniepay.com' || 
+                   user.email === 'fairmoniepay@gmail.com' ||
+                   user.email.toLowerCase().includes('admin');
 
   // Get first name from user.name
   const firstName = user.name.split(' ')[0];
@@ -387,6 +389,10 @@ const Dashboard: React.FC<DashboardProps> = ({ user, onAddMoney, onLogout }) => 
           setShowProfileMenu(false);
           setShowAbout(true);
         }}
+        onAdminDashboard={isAdmin ? () => {
+          setShowProfileMenu(false);
+          setShowAdminDashboard(true);
+        } : undefined}
       />
     );
   }
