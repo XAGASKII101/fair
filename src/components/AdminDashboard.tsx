@@ -5,6 +5,19 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { ArrowLeft, Users, DollarSign, CreditCard, CheckCircle, XCircle, Search, Download } from 'lucide-react';
+import { 
+  getAllUsers, 
+  getPendingWithdrawals, 
+  getPendingDeposits,
+  updateWithdrawalStatus,
+  updateDepositStatus,
+  updateUserBalance,
+  createTransaction,
+  getStats,
+  type User,
+  type Withdrawal,
+  type Deposit
+} from '@/services/firestoreService';
 
 interface AdminDashboardProps {
   onBack: () => void;
@@ -17,51 +30,100 @@ interface AdminDashboardProps {
 const AdminDashboard: React.FC<AdminDashboardProps> = ({ onBack, user }) => {
   const [searchTerm, setSearchTerm] = useState('');
   const [activeTab, setActiveTab] = useState('overview');
+  const [users, setUsers] = useState<User[]>([]);
+  const [withdrawals, setWithdrawals] = useState<Withdrawal[]>([]);
+  const [deposits, setDeposits] = useState<Deposit[]>([]);
+  const [stats, setStats] = useState({
+    totalUsers: 0,
+    pendingWithdrawals: 0,
+    pendingDeposits: 0,
+    totalTransactions: 0,
+    totalRevenue: 0
+  });
 
-  // Mock data - in production this would come from your backend
-  const stats = {
-    totalUsers: 1247,
-    pendingWithdrawals: 23,
-    pendingDeposits: 15,
-    totalTransactions: 5634,
-    totalRevenue: 2450000
+  useEffect(() => {
+    // Real-time listeners
+    const unsubUsers = getAllUsers(setUsers);
+    const unsubWithdrawals = getPendingWithdrawals(setWithdrawals);
+    const unsubDeposits = getPendingDeposits(setDeposits);
+    
+    // Load stats
+    getStats().then(setStats);
+    
+    return () => {
+      unsubUsers();
+      unsubWithdrawals();
+      unsubDeposits();
+    };
+  }, []);
+
+  const handleApproveWithdrawal = async (withdrawal: Withdrawal) => {
+    try {
+      await updateWithdrawalStatus(withdrawal.id!, 'approved');
+      await createTransaction({
+        userId: withdrawal.userId,
+        type: 'withdrawal',
+        amount: -withdrawal.amount,
+        status: 'completed',
+        description: `Withdrawal to ${withdrawal.bankName}`
+      });
+      alert('Withdrawal approved successfully!');
+    } catch (error) {
+      console.error('Error approving withdrawal:', error);
+      alert('Failed to approve withdrawal');
+    }
   };
 
-  const pendingWithdrawals = [
-    { id: 1, user: 'John Doe', email: 'john@example.com', amount: 50000, date: '2024-01-15', status: 'pending' },
-    { id: 2, user: 'Jane Smith', email: 'jane@example.com', amount: 75000, date: '2024-01-15', status: 'pending' },
-  ];
-
-  const pendingDeposits = [
-    { id: 1, user: 'Mike Johnson', email: 'mike@example.com', amount: 10000, type: 'FairCode', date: '2024-01-15', status: 'pending' },
-    { id: 2, user: 'Sarah Williams', email: 'sarah@example.com', amount: 10000, type: 'Withdrawal Fee', date: '2024-01-15', status: 'pending' },
-  ];
-
-  const allUsers = [
-    { id: 1, name: 'John Doe', email: 'john@example.com', balance: 250000, faircode: true, joined: '2024-01-10' },
-    { id: 2, name: 'Jane Smith', email: 'jane@example.com', balance: 180000, faircode: true, joined: '2024-01-12' },
-    { id: 3, name: 'Mike Johnson', email: 'mike@example.com', balance: 95000, faircode: false, joined: '2024-01-13' },
-  ];
-
-  const handleApproveWithdrawal = (id: number) => {
-    console.log('Approving withdrawal:', id);
-    // Add API call here
+  const handleRejectWithdrawal = async (withdrawal: Withdrawal) => {
+    try {
+      await updateWithdrawalStatus(withdrawal.id!, 'rejected');
+      await updateUserBalance(withdrawal.userId, withdrawal.amount);
+      await createTransaction({
+        userId: withdrawal.userId,
+        type: 'withdrawal_refund',
+        amount: withdrawal.amount,
+        status: 'completed',
+        description: 'Withdrawal rejected - refund'
+      });
+      alert('Withdrawal rejected and amount refunded!');
+    } catch (error) {
+      console.error('Error rejecting withdrawal:', error);
+      alert('Failed to reject withdrawal');
+    }
   };
 
-  const handleRejectWithdrawal = (id: number) => {
-    console.log('Rejecting withdrawal:', id);
-    // Add API call here
+  const handleConfirmDeposit = async (deposit: Deposit) => {
+    try {
+      await updateDepositStatus(deposit.id!, 'confirmed');
+      await updateUserBalance(deposit.userId, deposit.amount);
+      await createTransaction({
+        userId: deposit.userId,
+        type: deposit.type.toLowerCase(),
+        amount: deposit.amount,
+        status: 'completed',
+        description: `${deposit.type} confirmed`
+      });
+      alert('Deposit confirmed successfully!');
+    } catch (error) {
+      console.error('Error confirming deposit:', error);
+      alert('Failed to confirm deposit');
+    }
   };
 
-  const handleConfirmDeposit = (id: number) => {
-    console.log('Confirming deposit:', id);
-    // Add API call here
+  const handleRejectDeposit = async (deposit: Deposit) => {
+    try {
+      await updateDepositStatus(deposit.id!, 'rejected');
+      alert('Deposit rejected!');
+    } catch (error) {
+      console.error('Error rejecting deposit:', error);
+      alert('Failed to reject deposit');
+    }
   };
 
-  const handleRejectDeposit = (id: number) => {
-    console.log('Rejecting deposit:', id);
-    // Add API call here
-  };
+  const filteredUsers = users.filter(u => 
+    u.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    u.email.toLowerCase().includes(searchTerm.toLowerCase())
+  );
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -101,7 +163,7 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ onBack, user }) => {
               <div className="flex items-center justify-between">
                 <div>
                   <p className="text-xs text-gray-600">Pending Withdrawals</p>
-                  <p className="text-2xl font-bold text-orange-600">{stats.pendingWithdrawals}</p>
+                  <p className="text-2xl font-bold text-orange-600">{withdrawals.length}</p>
                 </div>
                 <CreditCard className="w-8 h-8 text-orange-600" />
               </div>
@@ -113,7 +175,7 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ onBack, user }) => {
               <div className="flex items-center justify-between">
                 <div>
                   <p className="text-xs text-gray-600">Pending Deposits</p>
-                  <p className="text-2xl font-bold text-blue-600">{stats.pendingDeposits}</p>
+                  <p className="text-2xl font-bold text-blue-600">{deposits.length}</p>
                 </div>
                 <DollarSign className="w-8 h-8 text-blue-600" />
               </div>
@@ -149,8 +211,8 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ onBack, user }) => {
         <Tabs value={activeTab} onValueChange={setActiveTab}>
           <TabsList className="grid w-full grid-cols-3 mb-6">
             <TabsTrigger value="overview">Overview</TabsTrigger>
-            <TabsTrigger value="withdrawals">Withdrawals</TabsTrigger>
-            <TabsTrigger value="deposits">Deposits</TabsTrigger>
+            <TabsTrigger value="withdrawals">Withdrawals ({withdrawals.length})</TabsTrigger>
+            <TabsTrigger value="deposits">Deposits ({deposits.length})</TabsTrigger>
           </TabsList>
 
           <TabsContent value="overview">
@@ -165,10 +227,6 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ onBack, user }) => {
                       onChange={(e) => setSearchTerm(e.target.value)}
                       className="w-64"
                     />
-                    <Button variant="outline" size="sm">
-                      <Download className="w-4 h-4 mr-2" />
-                      Export
-                    </Button>
                   </div>
                 </div>
               </CardHeader>
@@ -185,8 +243,8 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ onBack, user }) => {
                       </tr>
                     </thead>
                     <tbody>
-                      {allUsers.map((user) => (
-                        <tr key={user.id} className="border-b hover:bg-gray-50">
+                      {filteredUsers.map((user) => (
+                        <tr key={user.uid} className="border-b hover:bg-gray-50">
                           <td className="p-3 text-sm">{user.name}</td>
                           <td className="p-3 text-sm">{user.email}</td>
                           <td className="p-3 text-sm font-semibold text-green-600">₦{user.balance.toLocaleString()}</td>
@@ -197,7 +255,9 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ onBack, user }) => {
                               <span className="px-2 py-1 bg-gray-100 text-gray-700 rounded-full text-xs">None</span>
                             )}
                           </td>
-                          <td className="p-3 text-sm text-gray-600">{user.joined}</td>
+                          <td className="p-3 text-sm text-gray-600">
+                            {user.createdAt?.toDate?.()?.toLocaleDateString() || 'N/A'}
+                          </td>
                         </tr>
                       ))}
                     </tbody>
@@ -214,39 +274,48 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ onBack, user }) => {
               </CardHeader>
               <CardContent>
                 <div className="space-y-4">
-                  {pendingWithdrawals.map((withdrawal) => (
-                    <div key={withdrawal.id} className="border rounded-lg p-4">
-                      <div className="flex items-center justify-between mb-3">
-                        <div>
-                          <p className="font-semibold text-gray-900">{withdrawal.user}</p>
-                          <p className="text-sm text-gray-600">{withdrawal.email}</p>
+                  {withdrawals.length === 0 ? (
+                    <p className="text-center text-gray-500 py-8">No pending withdrawals</p>
+                  ) : (
+                    withdrawals.map((withdrawal) => (
+                      <div key={withdrawal.id} className="border rounded-lg p-4">
+                        <div className="flex items-center justify-between mb-3">
+                          <div>
+                            <p className="font-semibold text-gray-900">{withdrawal.userName}</p>
+                            <p className="text-sm text-gray-600">{withdrawal.userEmail}</p>
+                            <p className="text-xs text-gray-500 mt-1">
+                              {withdrawal.bankName} - {withdrawal.accountNumber}
+                            </p>
+                          </div>
+                          <div className="text-right">
+                            <p className="text-xl font-bold text-green-600">₦{withdrawal.amount.toLocaleString()}</p>
+                            <p className="text-xs text-gray-500">
+                              {withdrawal.createdAt?.toDate?.()?.toLocaleDateString() || 'N/A'}
+                            </p>
+                          </div>
                         </div>
-                        <div className="text-right">
-                          <p className="text-xl font-bold text-green-600">₦{withdrawal.amount.toLocaleString()}</p>
-                          <p className="text-xs text-gray-500">{withdrawal.date}</p>
+                        <div className="flex space-x-2">
+                          <Button
+                            onClick={() => handleApproveWithdrawal(withdrawal)}
+                            className="flex-1 bg-green-600 hover:bg-green-700"
+                            size="sm"
+                          >
+                            <CheckCircle className="w-4 h-4 mr-2" />
+                            Approve
+                          </Button>
+                          <Button
+                            onClick={() => handleRejectWithdrawal(withdrawal)}
+                            variant="destructive"
+                            className="flex-1"
+                            size="sm"
+                          >
+                            <XCircle className="w-4 h-4 mr-2" />
+                            Reject
+                          </Button>
                         </div>
                       </div>
-                      <div className="flex space-x-2">
-                        <Button
-                          onClick={() => handleApproveWithdrawal(withdrawal.id)}
-                          className="flex-1 bg-green-600 hover:bg-green-700"
-                          size="sm"
-                        >
-                          <CheckCircle className="w-4 h-4 mr-2" />
-                          Approve
-                        </Button>
-                        <Button
-                          onClick={() => handleRejectWithdrawal(withdrawal.id)}
-                          variant="destructive"
-                          className="flex-1"
-                          size="sm"
-                        >
-                          <XCircle className="w-4 h-4 mr-2" />
-                          Reject
-                        </Button>
-                      </div>
-                    </div>
-                  ))}
+                    ))
+                  )}
                 </div>
               </CardContent>
             </Card>
@@ -259,40 +328,46 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ onBack, user }) => {
               </CardHeader>
               <CardContent>
                 <div className="space-y-4">
-                  {pendingDeposits.map((deposit) => (
-                    <div key={deposit.id} className="border rounded-lg p-4">
-                      <div className="flex items-center justify-between mb-3">
-                        <div>
-                          <p className="font-semibold text-gray-900">{deposit.user}</p>
-                          <p className="text-sm text-gray-600">{deposit.email}</p>
-                          <p className="text-xs text-blue-600 mt-1">{deposit.type}</p>
+                  {deposits.length === 0 ? (
+                    <p className="text-center text-gray-500 py-8">No pending deposits</p>
+                  ) : (
+                    deposits.map((deposit) => (
+                      <div key={deposit.id} className="border rounded-lg p-4">
+                        <div className="flex items-center justify-between mb-3">
+                          <div>
+                            <p className="font-semibold text-gray-900">{deposit.userName}</p>
+                            <p className="text-sm text-gray-600">{deposit.userEmail}</p>
+                            <p className="text-xs text-blue-600 mt-1">{deposit.type}</p>
+                          </div>
+                          <div className="text-right">
+                            <p className="text-xl font-bold text-blue-600">₦{deposit.amount.toLocaleString()}</p>
+                            <p className="text-xs text-gray-500">
+                              {deposit.createdAt?.toDate?.()?.toLocaleDateString() || 'N/A'}
+                            </p>
+                          </div>
                         </div>
-                        <div className="text-right">
-                          <p className="text-xl font-bold text-blue-600">₦{deposit.amount.toLocaleString()}</p>
-                          <p className="text-xs text-gray-500">{deposit.date}</p>
+                        <div className="flex space-x-2">
+                          <Button
+                            onClick={() => handleConfirmDeposit(deposit)}
+                            className="flex-1 bg-blue-600 hover:bg-blue-700"
+                            size="sm"
+                          >
+                            <CheckCircle className="w-4 h-4 mr-2" />
+                            Confirm
+                          </Button>
+                          <Button
+                            onClick={() => handleRejectDeposit(deposit)}
+                            variant="destructive"
+                            className="flex-1"
+                            size="sm"
+                          >
+                            <XCircle className="w-4 h-4 mr-2" />
+                            Reject
+                          </Button>
                         </div>
                       </div>
-                      <div className="flex space-x-2">
-                        <Button
-                          onClick={() => handleConfirmDeposit(deposit.id)}
-                          className="flex-1 bg-blue-600 hover:bg-blue-700"
-                          size="sm"
-                        >
-                          <CheckCircle className="w-4 h-4 mr-2" />
-                          Confirm
-                        </Button>
-                        <Button
-                          onClick={() => handleRejectDeposit(deposit.id)}
-                          variant="destructive"
-                          className="flex-1"
-                          size="sm"
-                        >
-                          <XCircle className="w-4 h-4 mr-2" />
-                          Reject
-                        </Button>
-                      </div>
-                    </div>
-                  ))}
+                    ))
+                  )}
                 </div>
               </CardContent>
             </Card>

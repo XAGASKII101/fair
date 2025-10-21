@@ -7,9 +7,12 @@ import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious
 import { Dialog, DialogContent } from '@/components/ui/dialog';
 import { Eye, EyeOff, AlertCircle } from 'lucide-react';
 import ErrorNotification from '@/components/ErrorNotification';
+import { auth } from '@/lib/firebase';
+import { createUserWithEmailAndPassword, signInWithEmailAndPassword, onAuthStateChanged } from 'firebase/auth';
+import { createUser, getUser } from '@/services/firestoreService';
 
 interface AuthProps {
-  onLogin: (user: { name: string; email: string }) => void;
+  onLogin: (user: { uid: string; name: string; email: string }) => void;
 }
 
 const Auth: React.FC<AuthProps> = ({ onLogin }) => {
@@ -42,13 +45,17 @@ const Auth: React.FC<AuthProps> = ({ onLogin }) => {
 
   // Check for existing user session on mount
   useEffect(() => {
-    const savedSession = localStorage.getItem('currentUser');
-    if (savedSession) {
-      const user = JSON.parse(savedSession);
-      onLogin(user);
-    } else {
-      setShowAuth(true);
-    }
+    const unsubscribe = onAuthStateChanged(auth, async (firebaseUser) => {
+      if (firebaseUser) {
+        const userData = await getUser(firebaseUser.uid);
+        if (userData) {
+          onLogin({ uid: firebaseUser.uid, name: userData.name, email: firebaseUser.email! });
+        }
+      } else {
+        setShowAuth(true);
+      }
+    });
+    return () => unsubscribe();
   }, [onLogin]);
 
   useEffect(() => {
@@ -77,22 +84,20 @@ const Auth: React.FC<AuthProps> = ({ onLogin }) => {
     e.preventDefault();
     setIsLoading(true);
     
-    // Check if user exists in localStorage
-    const savedUsers = JSON.parse(localStorage.getItem('registeredUsers') || '[]');
-    const user = savedUsers.find((u: any) => u.email === loginData.email && u.password === loginData.password);
-    
-    setTimeout(() => {
-      if (user) {
-        // Save current session
-        localStorage.setItem('currentUser', JSON.stringify({ name: user.name, email: loginData.email }));
-        onLogin({ name: user.name, email: loginData.email });
-      } else {
-        setErrorMessage("Incorrect login details. Please sign up if you haven't registered yet.");
-        setShowErrorNotification(true);
-        setShowErrorPopup(false); // Hide old error popup
+    try {
+      const userCredential = await signInWithEmailAndPassword(auth, loginData.email, loginData.password);
+      const userData = await getUser(userCredential.user.uid);
+      
+      if (userData) {
+        onLogin({ uid: userCredential.user.uid, name: userData.name, email: loginData.email });
       }
+    } catch (error: any) {
+      setErrorMessage(error.code === 'auth/invalid-credential' 
+        ? "Incorrect login details. Please sign up if you haven't registered yet."
+        : "Login failed. Please try again.");
+      setShowErrorNotification(true);
       setIsLoading(false);
-    }, 1500);
+    }
   };
 
   const handleSignup = async (e: React.FormEvent) => {
@@ -103,23 +108,25 @@ const Auth: React.FC<AuthProps> = ({ onLogin }) => {
     
     setIsLoading(true);
     
-    // Save user to localStorage
-    const savedUsers = JSON.parse(localStorage.getItem('registeredUsers') || '[]');
-    const newUser = {
-      name: signupData.name,
-      email: signupData.email,
-      password: signupData.password
-    };
-    savedUsers.push(newUser);
-    localStorage.setItem('registeredUsers', JSON.stringify(savedUsers));
-    
-    // Save current session
-    localStorage.setItem('currentUser', JSON.stringify({ name: signupData.name, email: signupData.email }));
-    
-    setTimeout(() => {
-      onLogin({ name: signupData.name, email: signupData.email });
+    try {
+      const userCredential = await createUserWithEmailAndPassword(auth, signupData.email, signupData.password);
+      
+      await createUser({
+        uid: userCredential.user.uid,
+        name: signupData.name,
+        email: signupData.email,
+        balance: 0,
+        faircode: false
+      });
+      
+      onLogin({ uid: userCredential.user.uid, name: signupData.name, email: signupData.email });
+    } catch (error: any) {
+      setErrorMessage(error.code === 'auth/email-already-in-use'
+        ? "Email already registered. Please login instead."
+        : "Signup failed. Please try again.");
+      setShowErrorNotification(true);
       setIsLoading(false);
-    }, 1500);
+    }
   };
 
   const validateSignup = () => {
